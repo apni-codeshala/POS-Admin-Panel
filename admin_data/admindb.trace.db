@@ -1,0 +1,3 @@
+2025-07-26 17:18:33.956830+05:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLDataException: Value too long for column "LICENSE_KEY CHARACTER VARYING(255)": "'Z08OifRdOn9Xm4JHAEMczo1Nn4XJNFWQgNC1D75TQfitJ5oolcBWE6MeVVJjkafXry6e5MNrx41zpcv... (664)"; SQL statement:
+INSERT INTO licenses (license_key, scratch_code, sales_person_id, customer_details, system_fingerprint, admin_signature, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?) [22001-224]

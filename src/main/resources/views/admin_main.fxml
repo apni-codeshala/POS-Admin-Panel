@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.chronoadmin.controller.AdminMainController">
+   <top>
+      <VBox style="-fx-background-color: #2c3e50; -fx-padding: 20;">
+         <Label text="ChronoPos Admin Panel" style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold;" />
+         <Label text="Scratch Card Generation &amp; License Management System" style="-fx-text-fill: #bdc3c7; -fx-font-size: 16px;" />
+      </VBox>
+   </top>
+
+   <center>
+      <TabPane fx:id="mainTabPane" side="TOP" tabClosingPolicy="UNAVAILABLE">
+
+         <!-- Scratch Card Generation Tab -->
+         <Tab text="Generate Scratch Cards">
+            <ScrollPane fitToWidth="true" style="-fx-background-color: #f5f5f5;">
+               <VBox spacing="20.0" style="-fx-padding: 30;">
+
+                  <!-- Generation Form -->
+                  <VBox spacing="15.0" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 10;">
+                     <Label text="Generate New Scratch Cards" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+
+                     <GridPane hgap="15.0" vgap="15.0" alignment="CENTER_LEFT">
+                        <columnConstraints>
+                           <ColumnConstraints minWidth="150.0" />
+                           <ColumnConstraints minWidth="300.0" />
+                        </columnConstraints>
+
+                        <Label text="Sales Person ID:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="salesPersonIdField" GridPane.columnIndex="1" GridPane.rowIndex="0" promptText="Enter unique sales person ID" />
+
+                        <Label text="Sales Person Name:" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="salesPersonNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" promptText="Enter full name" />
+
+                        <Label text="Territory:" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="territoryField" GridPane.columnIndex="1" GridPane.rowIndex="2" promptText="Enter territory/region" />
+
+                        <Label text="Quantity:" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-font-weight: bold;" />
+                        <Spinner fx:id="quantitySpinner" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="150.0" />
+                     </GridPane>
+
+                     <HBox spacing="15.0" alignment="CENTER_LEFT">
+                        <Button fx:id="generateCardsBtn" text="Generate Scratch Cards" onAction="#generateScratchCards"
+                               style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 12;" />
+                        <Button fx:id="exportCardsBtn" text="Export to CSV" onAction="#exportScratchCards"
+                               style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10;" visible="false" />
+                     </HBox>
+
+                     <Label fx:id="generationStatus" style="-fx-text-fill: #e74c3c;" />
+                  </VBox>
+
+                  <!-- Generated Cards Display -->
+                  <VBox fx:id="generatedCardsSection" spacing="15.0" style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 10;" visible="false" managed="false">
+                     <Label text="Generated Scratch Cards" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                     <TextArea fx:id="generatedCardsArea" prefHeight="200.0" editable="false" wrapText="true" />
+                  </VBox>
+
+               </VBox>
+            </ScrollPane>
+         </Tab>
+
+         <!-- Scratch Cards Management Tab -->
+         <Tab text="Manage Scratch Cards">
+            <VBox spacing="20.0" style="-fx-padding: 20; -fx-background-color: #f5f5f5;">
+
+               <HBox spacing="15.0" alignment="CENTER_LEFT" style="-fx-padding: 15; -fx-background-color: white; -fx-background-radius: 10;">
+                  <Button fx:id="refreshCardsBtn" text="Refresh" onAction="#refreshScratchCards"
+                         style="-fx-background-color: #3498db; -fx-text-fill: white;" />
+                  <TextField fx:id="searchCardsField" promptText="Search by code, sales person, or territory..." prefWidth="300.0" />
+                  <Button fx:id="searchCardsBtn" text="Search" onAction="#searchScratchCards"
+                         style="-fx-background-color: #f39c12; -fx-text-fill: white;" />
+               </HBox>
+
+               <TableView fx:id="scratchCardsTable" prefHeight="400.0" style="-fx-background-color: white;">
+                  <columns>
+                     <TableColumn fx:id="cardCodeColumn" text="Scratch Code" prefWidth="120.0" />
+                     <TableColumn fx:id="cardSalesPersonColumn" text="Sales Person" prefWidth="150.0" />
+                     <TableColumn fx:id="cardTerritoryColumn" text="Territory" prefWidth="120.0" />
+                     <TableColumn fx:id="cardStatusColumn" text="Status" prefWidth="80.0" />
+                     <TableColumn fx:id="cardCreatedColumn" text="Created" prefWidth="120.0" />
+                     <TableColumn fx:id="cardUsedColumn" text="Used Date" prefWidth="120.0" />
+                  </columns>
+               </TableView>
+
+            </VBox>
+         </Tab>
+
+         <!-- Sales Requests Tab -->
+         <Tab text="Process Sales Requests">
+            <VBox spacing="20.0" style="-fx-padding: 20; -fx-background-color: #f5f5f5;">
+
+               <!-- Sales Key Input -->
+               <VBox spacing="15.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;">
+                  <Label text="Process Sales Person Key" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                  <TextArea fx:id="salesKeyInput" promptText="Paste sales person key here..." prefHeight="100.0" wrapText="true" />
+                  <HBox spacing="15.0">
+                     <Button fx:id="processSalesKeyBtn" text="Process Sales Key" onAction="#processSalesKey"
+                            style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-size: 14px;" />
+                     <Button fx:id="refreshRequestsBtn" text="Refresh Requests" onAction="#refreshSalesRequests"
+                            style="-fx-background-color: #3498db; -fx-text-fill: white;" />
+                  </HBox>
+                  <Label fx:id="salesKeyStatus" style="-fx-text-fill: #e74c3c;" />
+               </VBox>
+
+               <!-- Pending Requests Table -->
+               <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;">
+                  <Label text="Pending Sales Requests" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+
+                  <TableView fx:id="salesRequestsTable" prefHeight="300.0">
+                     <columns>
+                        <TableColumn fx:id="requestScratchCodeColumn" text="Scratch Code" prefWidth="120.0" />
+                        <TableColumn fx:id="requestSalesPersonColumn" text="Sales Person" prefWidth="150.0" />
+                        <TableColumn fx:id="requestCustomerColumn" text="Customer Details" prefWidth="300.0" />
+                        <TableColumn fx:id="requestReceivedColumn" text="Received" prefWidth="120.0" />
+                        <TableColumn fx:id="requestActionsColumn" text="Actions" prefWidth="150.0" />
+                     </columns>
+                  </TableView>
+               </VBox>
+
+            </VBox>
+         </Tab>
+
+         <!-- License Management Tab -->
+         <Tab text="License Management">
+            <VBox spacing="20.0" style="-fx-padding: 20; -fx-background-color: #f5f5f5;">
+
+               <HBox spacing="15.0" alignment="CENTER_LEFT" style="-fx-padding: 15; -fx-background-color: white; -fx-background-radius: 10;">
+                  <Button fx:id="refreshLicensesBtn" text="Refresh" onAction="#refreshLicenses"
+                         style="-fx-background-color: #3498db; -fx-text-fill: white;" />
+                  <TextField fx:id="searchLicensesField" promptText="Search licenses..." prefWidth="300.0" />
+                  <Button fx:id="searchLicensesBtn" text="Search" onAction="#searchLicenses"
+                         style="-fx-background-color: #f39c12; -fx-text-fill: white;" />
+               </HBox>
+
+               <!-- Generated License Display -->
+               <VBox fx:id="licenseDisplaySection" spacing="15.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;" visible="false" managed="false">
+                  <Label text="Generated License Key" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #27ae60;" />
+                  <TextArea fx:id="generatedLicenseArea" prefHeight="120.0" editable="false" wrapText="true" />
+                  <Button fx:id="copyLicenseBtn" text="Copy License Key" onAction="#copyLicenseKey"
+                         style="-fx-background-color: #e67e22; -fx-text-fill: white;" />
+               </VBox>
+
+               <TableView fx:id="licensesTable" prefHeight="350.0" style="-fx-background-color: white;">
+                  <columns>
+                     <TableColumn fx:id="licenseScratchCodeColumn" text="Scratch Code" prefWidth="120.0" />
+                     <TableColumn fx:id="licenseSalesPersonColumn" text="Sales Person" prefWidth="150.0" />
+                     <TableColumn fx:id="licenseCustomerColumn" text="Customer" prefWidth="250.0" />
+                     <TableColumn fx:id="licenseIssuedColumn" text="Issued" prefWidth="120.0" />
+                     <TableColumn fx:id="licenseExpiresColumn" text="Expires" prefWidth="120.0" />
+                     <TableColumn fx:id="licenseStatusColumn" text="Status" prefWidth="80.0" />
+                  </columns>
+               </TableView>
+
+            </VBox>
+         </Tab>
+
+      </TabPane>
+   </center>
+
+</BorderPane>
