@@ -1,15 +1,35 @@
 package org.example.chronoadmin.db;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 
 public class AdminDatabaseInitializer {
 
-    private static final String DB_URL = "jdbc:h2:./admin_data/admindb";
+    private static String dbUrl = null;
+
+    private static String getDbUrl() {
+        if (dbUrl == null) {
+            // Use user's AppData directory for database storage
+            String userHome = System.getProperty("user.home");
+            String appDataDir = userHome + File.separator + "AppData" + File.separator + "Local" + File.separator + "AdminChronoPos";
+
+            // Create directory if it doesn't exist
+            File dir = new File(appDataDir);
+            if (!dir.exists()) {
+                boolean created = dir.mkdirs();
+                System.out.println("Created database directory: " + created);
+            }
+
+            dbUrl = "jdbc:h2:" + appDataDir + File.separator + "admindb";
+            System.out.println("Database URL: " + dbUrl);
+        }
+        return dbUrl;
+    }
 
     public static void initialize() {
-        try (Connection conn = DriverManager.getConnection(DB_URL, "admin", "admin123");
+        try (Connection conn = DriverManager.getConnection(getDbUrl(), "admin", "admin123");
              Statement stmt = conn.createStatement()) {
 
             // Create scratch cards table

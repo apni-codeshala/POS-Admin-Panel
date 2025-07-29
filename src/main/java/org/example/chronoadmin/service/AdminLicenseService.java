@@ -4,6 +4,7 @@ import org.example.chronoadmin.model.AdminScratchCard;
 import org.example.chronoadmin.model.AdminLicense;
 import org.example.chronoadmin.model.SalesRequest;
 
+import java.io.File;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,13 +13,32 @@ import java.util.Map;
 
 public class AdminLicenseService {
 
-    private static final String DB_URL = "jdbc:h2:./admin_data/admindb";
+    private static String dbUrl = null;
+
+    private static String getDbUrl() {
+        if (dbUrl == null) {
+            // Use user's AppData directory for database storage
+            String userHome = System.getProperty("user.home");
+            String appDataDir = userHome + File.separator + "AppData" + File.separator + "Local" + File.separator + "AdminChronoPos";
+
+            // Create directory if it doesn't exist
+            File dir = new File(appDataDir);
+            if (!dir.exists()) {
+                boolean created = dir.mkdirs();
+                System.out.println("Created database directory: " + created);
+            }
+
+            dbUrl = "jdbc:h2:" + appDataDir + File.separator + "admindb";
+            System.out.println("Database URL: " + dbUrl);
+        }
+        return dbUrl;
+    }
 
     public static List<AdminScratchCard> generateScratchCards(String salesPersonId, String salesPersonName,
                                                              String territory, int quantity) throws Exception {
         List<AdminScratchCard> cards = new ArrayList<>();
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, "admin", "admin123")) {
+        try (Connection conn = DriverManager.getConnection(getDbUrl(), "admin", "admin123")) {
             String sql = "INSERT INTO scratch_cards (scratch_code, sales_person_id, sales_person_name, embedded_password, territory) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);
 
@@ -53,7 +73,7 @@ public class AdminLicenseService {
     public static List<AdminScratchCard> getAllScratchCards() throws Exception {
         List<AdminScratchCard> cards = new ArrayList<>();
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, "admin", "admin123")) {
+        try (Connection conn = DriverManager.getConnection(getDbUrl(), "admin", "admin123")) {
             String sql = "SELECT * FROM scratch_cards ORDER BY created_at DESC";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
@@ -81,7 +101,7 @@ public class AdminLicenseService {
     public static void processSalesPersonKey(String salesPersonKey) throws Exception {
         Map<String, String> salesData = AdminCryptographicService.decryptSalesPersonKey(salesPersonKey);
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, "admin", "admin123")) {
+        try (Connection conn = DriverManager.getConnection(getDbUrl(), "admin", "admin123")) {
             String sql = "INSERT INTO sales_requests (scratch_code, sales_person_key, customer_details, system_fingerprint) VALUES (?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);
 
@@ -106,7 +126,7 @@ public class AdminLicenseService {
     public static List<SalesRequest> getPendingSalesRequests() throws Exception {
         List<SalesRequest> requests = new ArrayList<>();
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, "admin", "admin123")) {
+        try (Connection conn = DriverManager.getConnection(getDbUrl(), "admin", "admin123")) {
             String sql = """
                 SELECT sr.*, sc.sales_person_id, sc.sales_person_name, sc.territory 
                 FROM sales_requests sr 
@@ -143,7 +163,7 @@ public class AdminLicenseService {
             request.getSystemFingerprint()
         );
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, "admin", "admin123")) {
+        try (Connection conn = DriverManager.getConnection(getDbUrl(), "admin", "admin123")) {
             // Insert license record
             String sql = "INSERT INTO licenses (license_key, scratch_code, sales_person_id, customer_details, system_fingerprint, admin_signature, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -170,7 +190,7 @@ public class AdminLicenseService {
     public static List<AdminLicense> getAllLicenses() throws Exception {
         List<AdminLicense> licenses = new ArrayList<>();
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, "admin", "admin123")) {
+        try (Connection conn = DriverManager.getConnection(getDbUrl(), "admin", "admin123")) {
             String sql = "SELECT * FROM licenses ORDER BY issued_at DESC";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
